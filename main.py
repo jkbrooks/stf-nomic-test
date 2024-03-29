@@ -1,9 +1,35 @@
 import random
-
+from datetime import datetime
+from RuleComplianceChecker import RuleComplianceChecker
 class NomicGame:
+    def __init__(self, player_names):
+        self.rule_checker = RuleComplianceChecker()
     def __init__(self, player_names):
         self.players = [Player(name) for name in player_names]
         self.rules = {
+            "R1": Rule("Players must vote on rule changes.", True),
+            "R2": Rule("A player gains points by rolling a die.", True)
+        }
+        self.currentPlayerIndex = 0
+        self.game_over = False
+        self.players = [Player(name) for name in player_names]
+        class Rule:
+    def __init__(self, description, active):
+        self.description = description
+        self.active = active
+        self.versions = [(description, datetime.now())]
+
+    def add_version(self, new_description):
+        self.description = new_description
+        self.versions.append((new_description, datetime.now()))
+
+    def update_version(self, new_description):
+        if self.versions:
+            self.versions[-1] = (new_description, datetime.now())
+            self.description = new_description
+
+    def archive_rule(self):
+        self.active = False
             "R1": Rule("Players must vote on rule changes.", False),
             "R2": Rule("A player gains points by rolling a die.", True)
         }
@@ -13,8 +39,17 @@ class NomicGame:
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
         
-        proposed_rule = player.propose_rule()
-        proposal_passed = self.conduct_vote(proposed_rule)
+        proposed_rule_description = input(f'{player.name}, propose a new rule or press enter to skip: ')
+        if proposed_rule_description:
+            proposed_rule = Rule(proposed_rule_description, True)
+        else:
+            return
+        if proposed_rule_description and not self.rule_checker.check_compliance(proposed_rule.description):
+            print("Proposed rule does not comply with current rules.")
+            return
+        proposal_passed = False
+        if proposed_rule_description:
+            proposal_passed = self.conduct_vote(proposed_rule)
         
         if proposal_passed:
             print(f"Proposal passed. Implementing new rule: {proposed_rule}")
@@ -35,9 +70,16 @@ class NomicGame:
         return random.randint(1, 6)
     
     def conduct_vote(self, proposed_rule):
-        votes_for = sum([p.vote(proposed_rule) for p in self.players])
+        print('Voting on proposed rule: ' + proposed_rule.description)
+        votes_for = 0
+        for p in self.players:
+            vote = input(f'{p.name}, vote for the rule change. Yes/No: ').lower()
+            if vote == 'yes':
+                votes_for += 1
         votes_against = len(self.players) - votes_for
-        print(f"Votes for: {votes_for}, Votes against: {votes_against}")
+        votes_against = len(self.players) - votes_for
+        print(f'Votes for: {votes_for}, Votes against: {votes_against}')
+        return votes_for > votes_against
         return votes_for > len(self.players) / 2
 
 class Player:
