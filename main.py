@@ -1,4 +1,25 @@
 import random
+
+class GameState:
+    def __init__(self, rules):
+        self.rules = rules
+        self.temp_rules = self.rules.copy()
+
+    def validate_rules(self):
+        # Placeholder for rule validation logic
+        return True
+
+    def commit_rules(self):
+        if self.validate_rules():
+            self.rules = self.temp_rules.copy()
+            return True
+        return False
+
+    def update_rule(self, rule_id, new_description):
+        if rule_id < len(self.temp_rules):
+            self.temp_rules[rule_id].add_version(new_description)
+            return True
+        return False
 class Rule:
     def __init__(self, description, active):
         self.description = description
@@ -7,42 +28,38 @@ class Rule:
         self.version = 0
 
     def add_version(self, new_description):
-        self.history.append((self.version, self.description))
-        self.description = new_description
         self.version += 1
+        self.description = new_description
+        self.history.append({'version': self.version, 'description': new_description})
 
     def get_version(self, version_number):
-        for version, description in self.history:
-            if version == version_number:
-                return description
+        for version in self.history:
+            if version['version'] == version_number:
+                return version
         return None
 
-    def archive_versions(self):
-        self.history = [(self.version, self.description)]
-class GameState:
-    def __init__(self, player_names):
-        self.players = [Player(name) for name in player_names]
-        self.rules = {
-            "R1": Rule("Players must vote on rule changes.", False),
-            "R2": Rule("A player gains points by rolling a die.", True)
-        }
-        self.currentPlayerIndex = 0
-        self.rule_compliance_cache = {}
-
-    def apply_rule_change(self, rule_id, new_description):
-        temp_rules = self.rules.copy()
-        if rule_id in temp_rules:
-            temp_rule = temp_rules[rule_id]
-            temp_rule.add_version(new_description)
-            if self.validate_rule_change(temp_rule):
-                self.rules = temp_rules
+    def archive_version(self, version_number):
+        for version in self.history:
+            if version['version'] == version_number:
+                version['archived'] = True
                 return True
         return False
 
-    def validate_rule_change(self, rule):
-        # Placeholder for validation logic
-        return True
+class VotingMechanism:
+    def __init__(self, candidates):
+        self.candidates = candidates
+        self.votes = {candidate: 0 for candidate in candidates}
 
+    def cast_vote(self, candidate):
+        if candidate in self.votes:
+            self.votes[candidate] += 1
+            return True
+        return False
+
+    def get_results(self):
+        return sorted(self.votes.items(), key=lambda x: x[1], reverse=True)
+
+class NomicGame:
     def __init__(self, player_names):
         self.players = [Player(name) for name in player_names]
         self.rules = {
@@ -56,7 +73,7 @@ class GameState:
         print(f"{player.name}'s turn:")
         
         proposed_rule = player.propose_rule()
-        proposal_passed = VotingSystem.conduct_vote(self.players, proposed_rule)
+        proposal_passed = self.conduct_vote(proposed_rule)
         
         if proposal_passed:
             print(f"Proposal passed. Implementing new rule: {proposed_rule}")
@@ -81,10 +98,11 @@ class GameState:
             return self.rule_compliance_cache[rule_id]
         
         rule = self.rules.get(rule_id)
-        if not rule:
-            return False
+        if rule and rule.active:
+            compliance = True # Placeholder for actual compliance logic
+        else:
+            compliance = False
         
-        compliance = rule.active  # Simplified compliance check
         self.rule_compliance_cache[rule_id] = compliance
         return compliance
     def conduct_vote(self, proposed_rule):
