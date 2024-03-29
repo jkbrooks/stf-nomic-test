@@ -1,6 +1,25 @@
 import random
+class Rule:
+    def __init__(self, description, active):
+        self.description = description
+        self.active = active
+        self.history = []
+        self.version = 0
 
-class NomicGame:
+    def add_version(self, new_description):
+        self.history.append((self.version, self.description))
+        self.description = new_description
+        self.version += 1
+
+    def get_version(self, version_number):
+        for version, description in self.history:
+            if version == version_number:
+                return description
+        return None
+
+    def archive_versions(self):
+        self.history = [(self.version, self.description)]
+class GameState:
     def __init__(self, player_names):
         self.players = [Player(name) for name in player_names]
         self.rules = {
@@ -8,13 +27,36 @@ class NomicGame:
             "R2": Rule("A player gains points by rolling a die.", True)
         }
         self.currentPlayerIndex = 0
-         self.game_over = False
+        self.rule_compliance_cache = {}
+
+    def apply_rule_change(self, rule_id, new_description):
+        temp_rules = self.rules.copy()
+        if rule_id in temp_rules:
+            temp_rule = temp_rules[rule_id]
+            temp_rule.add_version(new_description)
+            if self.validate_rule_change(temp_rule):
+                self.rules = temp_rules
+                return True
+        return False
+
+    def validate_rule_change(self, rule):
+        # Placeholder for validation logic
+        return True
+
+    def __init__(self, player_names):
+        self.players = [Player(name) for name in player_names]
+        self.rules = {
+            "R1": Rule("Players must vote on rule changes.", False),
+            "R2": Rule("A player gains points by rolling a die.", True)
+        }
+        self.currentPlayerIndex = 0
+         self.rule_compliance_cache = {}
     def take_turn(self):
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
         
         proposed_rule = player.propose_rule()
-        proposal_passed = self.conduct_vote(proposed_rule)
+        proposal_passed = VotingSystem.conduct_vote(self.players, proposed_rule)
         
         if proposal_passed:
             print(f"Proposal passed. Implementing new rule: {proposed_rule}")
@@ -33,7 +75,18 @@ class NomicGame:
     
     def roll_die(self):
         return random.randint(1, 6)
-    
+     
+    def verify_rule_compliance(self, rule_id):
+        if rule_id in self.rule_compliance_cache:
+            return self.rule_compliance_cache[rule_id]
+        
+        rule = self.rules.get(rule_id)
+        if not rule:
+            return False
+        
+        compliance = rule.active  # Simplified compliance check
+        self.rule_compliance_cache[rule_id] = compliance
+        return compliance
     def conduct_vote(self, proposed_rule):
         votes_for = sum([p.vote(proposed_rule) for p in self.players])
         votes_against = len(self.players) - votes_for
