@@ -4,10 +4,7 @@ from rule_compliance_checker import RuleComplianceChecker
 class NomicGame:
     def __init__(self, player_names):
         self.players = [Player(name) for name in player_names]
-        self.rules = {
-            "R1": Rule("Players must vote on rule changes.", False),
-            "R2": Rule("A player gains points by rolling a die.", True)
-        }
+        self.rules = RuleManager()
         self.currentPlayerIndex = 0
          self.game_over = False
         self.ruleComplianceChecker = RuleComplianceChecker()
