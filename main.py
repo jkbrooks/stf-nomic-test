@@ -1,4 +1,5 @@
 import random
+from rule_compliance_checker import RuleComplianceChecker
 
 class NomicGame:
     def __init__(self, player_names):
@@ -9,6 +10,7 @@ class NomicGame:
         }
         self.currentPlayerIndex = 0
          self.game_over = False
+        self.ruleComplianceChecker = RuleComplianceChecker()
     def take_turn(self):
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
