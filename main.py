@@ -16,7 +16,11 @@ class NomicGame:
         print(f"{player.name}'s turn:")
         
         proposed_rule = player.propose_rule()
-        proposal_passed = self.conduct_vote(proposed_rule)
+        if self.ruleComplianceChecker.check_compliance(player, proposed_rule):
+            proposal_passed = self.conduct_vote(proposed_rule)
+        else:
+            print('Proposed rule does not comply with existing rules.')
+            proposal_passed = False
         
         if proposal_passed:
             print(f"Proposal passed. Implementing new rule: {proposed_rule}")
