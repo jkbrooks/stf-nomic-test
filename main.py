@@ -17,7 +17,23 @@ class NomicGame:
         
         proposed_rule = player.propose_rule()
         if self.ruleComplianceChecker.check_compliance(player, proposed_rule):
-            proposal_passed = self.conduct_vote(proposed_rule)
+            proposal_decision = input(f'{player.name}, do you want to proceed with the vote, modify your proposal, or skip your proposal? (proceed/modify/skip) ')
+            if proposal_decision == 'proceed':
+                proposal_passed = self.conduct_vote(proposed_rule)
+            elif proposal_decision == 'modify':
+                print('Modifying proposal...')
+                proposed_rule = player.propose_rule()
+                if self.ruleComplianceChecker.check_compliance(player, proposed_rule):
+                    proposal_passed = self.conduct_vote(proposed_rule)
+                else:
+                    print('Modified proposed rule does not comply with existing rules.')
+                    proposal_passed = False
+            elif proposal_decision == 'skip':
+                print(f'{player.name} has decided to skip their proposal for this turn.')
+                proposal_passed = False
+            else:
+                print('Invalid option. Skipping proposal by default.')
+                proposal_passed = False
         else:
             print('Proposed rule does not comply with existing rules.')
             proposal_passed = False
