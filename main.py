@@ -1,4 +1,5 @@
 import random
+import datetime
 from rule_compliance_checker import RuleComplianceChecker
 
 class NomicGame:
@@ -73,6 +74,11 @@ class Player:
         return random.choice([True, False])
 
 class Rule:
+    def __init__(self, description, is_mutable, version=1):
+        self.description = description
+        self.is_mutable = is_mutable
+        self.version = version
+        self.timestamp = datetime.datetime.now()
     def __init__(self, description, is_mutable):
         self.description = description
         self.is_mutable = is_mutable
