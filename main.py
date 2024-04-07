@@ -13,16 +13,16 @@ class NomicGame:
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
         
-        proposed_rule = player.propose_rule()
+        proposed_rule = input(f'{player.name}, please propose a new rule: ')
         if self.ruleComplianceChecker.check_compliance(player, proposed_rule):
             proposal_decision = input(f'{player.name}, do you want to proceed with the vote, modify your proposal, or skip your proposal? (proceed/modify/skip) ')
             if proposal_decision == 'proceed':
-                proposal_passed = self.conduct_vote(proposed_rule)
+                proposal_passed = self.async_conduct_vote(proposed_rule)
             elif proposal_decision == 'modify':
                 print('Modifying proposal...')
                 proposed_rule = player.propose_rule()
                 if self.ruleComplianceChecker.check_compliance(player, proposed_rule):
-                    proposal_passed = self.conduct_vote(proposed_rule)
+                    proposal_passed = self.async_conduct_vote(proposed_rule)
                 else:
                     print('Modified proposed rule does not comply with existing rules.')
                     proposal_passed = False
@@ -48,7 +48,7 @@ class NomicGame:
         print(f"{player.name}'s score is now: {player.score}\n")
         
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.players)
-        if any(player.score >= 100 for player in self.players) and self.currentPlayerIndex == 0:
+        if any(player.score >= 100 for player in self.players):
             self.game_over = True
     
     def roll_die(self):
