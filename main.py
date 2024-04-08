@@ -57,7 +57,18 @@ class Rule:
     def __init__(self, description, is_mutable):
         self.description = description
         self.is_mutable = is_mutable
-def load_player_names_from_file(file_path):
+        from datetime import datetime
+        self.creation_timestamp = datetime.now()
+        self.last_modified_timestamp = datetime.now()
+    def update_description(self, new_description):
+        if self.is_mutable:
+            self.description = new_description
+            self.last_modified_timestamp = datetime.now()
+
+    def update_mutable_status(self, new_status):
+        if isinstance(new_status, bool):
+            self.is_mutable = new_status
+            self.last_modified_timestamp = datetime.now()
     try:
         with open(file_path, 'r') as file:
             valid_names = [line.strip() for line in file if line.strip()]
