@@ -13,8 +13,33 @@ class NomicGame:
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
         
+        action = input(f'{player.name}, do you want to propose a rule or roll the die? (propose/roll) ')
+while True:
+    if action == 'propose':
+        if not self.rules['R1'].is_compliant:
+            print('Current rules do not allow proposing a new rule. Choose another action.')
+            action = input('Do you want to propose a rule or roll the die? (propose/roll) ')
+            continue
         proposed_rule = player.propose_rule()
         proposal_passed = self.conduct_vote(proposed_rule)
+        if proposal_passed:
+            print(f'Proposal passed. Implementing new rule: {proposed_rule}')
+            self.rules[f'R{len(self.rules) + 1}'] = Rule(proposed_rule, True)
+        else:
+            print('Proposal failed.')
+        break
+    elif action == 'roll':
+        if not self.rules['R2'].is_compliant:
+            print('Current rules do not allow rolling the die. Choose another action.')
+            action = input('Do you want to propose a rule or roll the die? (propose/roll) ')
+            continue
+        points = self.roll_die()
+        print(f'{player.name} rolls a die and gains {points} points.')
+        player.score += points
+        print(f'{player.name}'s score is now: {player.score}\n')
+        break
+    else:
+        action = input('Invalid action. Please choose to propose a rule or roll the die. (propose/roll) ')
         
         if proposal_passed:
             print(f"Proposal passed. Implementing new rule: {proposed_rule}")
@@ -22,10 +47,7 @@ class NomicGame:
         else:
             print("Proposal failed.")
         
-        points = self.roll_die()
-        print(f"{player.name} rolls a die and gains {points} points.")
-        player.score += points
-        print(f"{player.name}'s score is now: {player.score}\n")
+        
         
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.players)
         if any(player.score >= 100 for player in self.players) and self.currentPlayerIndex == 0:
