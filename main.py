@@ -53,9 +53,14 @@ class NomicGame:
         return random.randint(1, 6)
     
     def conduct_vote(self, proposed_rule):
-        votes_for = sum([p.vote(proposed_rule) for p in self.players])
-        votes_against = len(self.players) - votes_for
-        print(f"Votes for: {votes_for}, Votes against: {votes_against}")
+        if self.is_rule_mutable(proposed_rule.rule_id):
+            votes_for = sum([p.vote(proposed_rule) for p in self.players])
+            votes_against = len(self.players) - votes_for
+            print(f"Votes for: {votes_for}, Votes against: {votes_against}")
+            return votes_for > votes_against
+        else:
+            print(f"Rule {proposed_rule.rule_id} is immutable and cannot be changed.")
+            return False
         return votes_for > len(self.players) / 2
 
 class Player:
