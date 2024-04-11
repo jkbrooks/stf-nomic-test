@@ -9,6 +9,21 @@ class NomicGame:
         }
         self.currentPlayerIndex = 0
          self.game_over = False
+     
+     def add_rule(self, rule):
+         rule_id = f"R{len(self.rules) + 1}"
+         if self.validate_rule(rule):
+             self.rules[rule_id] = Rule(rule, True)
+             print(f"Rule {rule_id} added: {rule}")
+         else:
+             print("Rule validation failed.")
+     
+     def validate_rule(self, rule):
+         # Placeholder for rule validation logic
+         return True
+     
+     def is_rule_mutable(self, rule_id):
+         return self.rules[rule_id].is_mutable
     def take_turn(self):
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
@@ -17,8 +32,8 @@ class NomicGame:
         proposal_passed = self.conduct_vote(proposed_rule)
         
         if proposal_passed:
-            print(f"Proposal passed. Implementing new rule: {proposed_rule}")
-            self.rules[f"R{len(self.rules) + 1}"] = Rule(proposed_rule, True)
+             print(f"Proposal passed. Implementing new rule: {proposed_rule}")
+             self.add_rule(proposed_rule)
         else:
             print("Proposal failed.")
         
