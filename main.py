@@ -13,7 +13,7 @@ class NomicGame:
      def add_rule(self, rule):
          rule_id = f"R{len(self.rules) + 1}"
          if self.validate_rule(rule):
-             self.rules[rule_id] = Rule(rule, True)
+             // This line is replaced by the add_rule method call and is no longer directly manipulating the self.rules dictionary.
              print(f"Rule {rule_id} added: {rule}")
          else:
              print("Rule validation failed.")
@@ -33,7 +33,10 @@ class NomicGame:
         
         if proposal_passed:
              print(f"Proposal passed. Implementing new rule: {proposed_rule}")
-             self.add_rule(proposed_rule)
+             if self.validate_rule(proposed_rule):
+                self.add_rule(proposed_rule)
+            else:
+                print("Rule proposal is not valid.")
         else:
             print("Proposal failed.")
         
