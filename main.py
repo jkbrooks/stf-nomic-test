@@ -1,4 +1,5 @@
 import random
+import datetime
 
 class NomicGame:
     def __init__(self, player_names):
@@ -13,7 +14,7 @@ class NomicGame:
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
         
-        proposed_rule = player.propose_rule()
+        proposed_rule = input(f'{player.name}, enter your proposed rule: ')
         proposal_passed = self.conduct_vote(proposed_rule)
         
         if proposal_passed:
@@ -22,10 +23,14 @@ class NomicGame:
         else:
             print("Proposal failed.")
         
-        points = self.roll_die()
-        print(f"{player.name} rolls a die and gains {points} points.")
-        player.score += points
-        print(f"{player.name}'s score is now: {player.score}\n")
+        rule_checker = RuleComplianceChecker(self.rules)
+        if rule_checker.is_action_compliant('roll_die'):
+            points = self.roll_die()
+            print(f"{player.name} rolls a die and gains {points} points.")
+            player.score += points
+            print(f"{player.name}'s score is now: {player.score}\n")
+        else:
+            print("Action not allowed under the current rules.")
         
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.players)
         if any(player.score >= 100 for player in self.players) and self.currentPlayerIndex == 0:
@@ -35,11 +40,29 @@ class NomicGame:
         return random.randint(1, 6)
     
     def conduct_vote(self, proposed_rule):
-        votes_for = sum([p.vote(proposed_rule) for p in self.players])
+        votes_for, votes_against, vote_details = self.automated_voting(proposed_rule)
+        for detail in vote_details:
+            print(detail)
         votes_against = len(self.players) - votes_for
         print(f"Votes for: {votes_for}, Votes against: {votes_against}")
         return votes_for > len(self.players) / 2
-
+    def automated_voting(self, proposed_rule):
+        votes_for = 0
+        votes_against = 0
+        vote_details = []
+        for player in self.players:
+            # Example condition for automated voting
+            if 'gain points' in proposed_rule:
+                vote = True
+            else:
+                vote = random.choice([True, False])
+            if vote:
+                votes_for += 1
+                vote_details.append(f'{player.name} voted for the rule: {proposed_rule} based on positive impact.')
+            else:
+                votes_against += 1
+                vote_details.append(f'{player.name} voted against the rule: {proposed_rule} due to lack of clarity.')
+        return votes_for, votes_against, vote_details
 class Player:
     def __init__(self, name):
         self.name = name
@@ -54,10 +77,21 @@ class Player:
         return random.choice([True, False])
 
 class Rule:
+    def __init__(self, description, is_mutable, version=1, created_at=datetime.datetime.now()):
+        self.description = description
+        self.is_mutable = is_mutable
+        self.version = version
+        self.created_at = created_at
     def __init__(self, description, is_mutable):
         self.description = description
         self.is_mutable = is_mutable
-def load_player_names_from_file(file_path):
+class RuleComplianceChecker:
+    def __init__(self):
+        pass
+
+    def check_compliance(self, player_action, current_rules):
+        # Placeholder logic
+        return True
     try:
         with open(file_path, 'r') as file:
             valid_names = [line.strip() for line in file if line.strip()]
