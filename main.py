@@ -14,7 +14,7 @@ class NomicGame:
         player = self.players[self.currentPlayerIndex]
         print(f"{player.name}'s turn:")
         
-        proposed_rule = player.propose_rule()
+        proposed_rule = input(f'{player.name}, enter your proposed rule: ')
         proposal_passed = self.conduct_vote(proposed_rule)
         
         if proposal_passed:
