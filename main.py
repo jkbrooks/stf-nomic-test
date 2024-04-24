@@ -23,10 +23,14 @@ class NomicGame:
         else:
             print("Proposal failed.")
         
-        points = self.roll_die()
-        print(f"{player.name} rolls a die and gains {points} points.")
-        player.score += points
-        print(f"{player.name}'s score is now: {player.score}\n")
+        rule_checker = RuleComplianceChecker(self.rules)
+        if rule_checker.is_action_compliant('roll_die'):
+            points = self.roll_die()
+            print(f"{player.name} rolls a die and gains {points} points.")
+            player.score += points
+            print(f"{player.name}'s score is now: {player.score}\n")
+        else:
+            print("Action not allowed under the current rules.")
         
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.players)
         if any(player.score >= 100 for player in self.players) and self.currentPlayerIndex == 0:
