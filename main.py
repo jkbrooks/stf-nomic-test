@@ -40,11 +40,29 @@ class NomicGame:
         return random.randint(1, 6)
     
     def conduct_vote(self, proposed_rule):
-        votes_for = sum([p.vote(proposed_rule) for p in self.players])
+        votes_for, votes_against, vote_details = self.automated_voting(proposed_rule)
+        for detail in vote_details:
+            print(detail)
         votes_against = len(self.players) - votes_for
         print(f"Votes for: {votes_for}, Votes against: {votes_against}")
         return votes_for > len(self.players) / 2
-
+    def automated_voting(self, proposed_rule):
+        votes_for = 0
+        votes_against = 0
+        vote_details = []
+        for player in self.players:
+            # Example condition for automated voting
+            if 'gain points' in proposed_rule:
+                vote = True
+            else:
+                vote = random.choice([True, False])
+            if vote:
+                votes_for += 1
+                vote_details.append(f'{player.name} voted for the rule: {proposed_rule} based on positive impact.')
+            else:
+                votes_against += 1
+                vote_details.append(f'{player.name} voted against the rule: {proposed_rule} due to lack of clarity.')
+        return votes_for, votes_against, vote_details
 class Player:
     def __init__(self, name):
         self.name = name
