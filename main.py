@@ -1,4 +1,5 @@
 import random
+import datetime
 
 class NomicGame:
     def __init__(self, player_names):
@@ -54,6 +55,11 @@ class Player:
         return random.choice([True, False])
 
 class Rule:
+    def __init__(self, description, is_mutable, version=1, created_at=datetime.datetime.now()):
+        self.description = description
+        self.is_mutable = is_mutable
+        self.version = version
+        self.created_at = created_at
     def __init__(self, description, is_mutable):
         self.description = description
         self.is_mutable = is_mutable
