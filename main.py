@@ -63,7 +63,13 @@ class Rule:
     def __init__(self, description, is_mutable):
         self.description = description
         self.is_mutable = is_mutable
-def load_player_names_from_file(file_path):
+class RuleComplianceChecker:
+    def __init__(self):
+        pass
+
+    def check_compliance(self, player_action, current_rules):
+        # Placeholder logic
+        return True
     try:
         with open(file_path, 'r') as file:
             valid_names = [line.strip() for line in file if line.strip()]
